@@ -1,0 +1,33 @@
+name: Build EXE on Windows
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:   # 允许手动触发
+
+jobs:
+  build:
+    runs-on: windows-latest   # 关键！指定 Windows 环境
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'   # 稳定版，避免 PyInstaller 兼容问题
+
+      - name: 安装依赖
+        run: |
+          pip install pyinstaller
+
+      - name: 编译 zzj.py 为 EXE
+        run: |
+          pyinstaller --onefile --name MyApp zzj.py
+        # 如果文件在子目录，比如 src/zzj.py，就写 src/zzj.py
+
+      - name: 上传生成的 EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: zzj-exe
+          path: dist/*.exe
